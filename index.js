@@ -15,9 +15,9 @@ exports.handler = async (event, context, callback) => {
             }
             const s3_response = await upload_s3(event);
             console.log("s3_response", s3_response)
-            callback({
+            callback(null, {
                 statusCode: '200',
-                body: JSON.stringify({ data: s3_response['data']['Location'] })
+                body: s3_response['Location']
             })
             
         }catch(error){
@@ -25,22 +25,19 @@ exports.handler = async (event, context, callback) => {
                 statusCode: '500',
                 body: `something went wrong ${error}`
             })
-        }
-        
+        }      
     } else {
         callback(null, {
             statusCode: '422',
             body: 'Incorrect file format'
         })
-
     }
-
 };
 
 const upload_s3 = async (form) => {
     console.log("------form.buffer.data---------", form.buffer.data)
     const uniqueId = Math.random().toString(36).substr(2, 9);
-    const key = `${uniqueId}/${form.originalname}`;
+    const key = `${uniqueId}-${form.originalname}`;
     const request = {
         Bucket: 'aya-aws-bucket',
         Key: `images/${key}`,
